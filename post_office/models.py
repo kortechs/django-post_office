@@ -55,8 +55,7 @@ class Email(models.Model):
                                                 blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     last_updated = models.DateTimeField(db_index=True, auto_now=True)
-    # new enable field
-    enable_to_send = models.BooleanField(default=True),
+    enabled = models.BooleanField(default=True),
 
     scheduled_time = models.DateTimeField(_("Scheduled Time"),
                                           blank=True, null=True, db_index=True,
