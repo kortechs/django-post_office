@@ -183,7 +183,6 @@ class Email(models.Model):
             # If run in a bulk sending mode, reraise and let the outer
             # layer handle the exception
             if not commit:
-                status = STATUS.skipped
                 raise
 
         if disconnect_after_delivery:
