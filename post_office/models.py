@@ -169,23 +169,20 @@ class Email(models.Model):
         """
         Sends email and log the result.
         """
-        if self.enabled is True:
-            try:
-                self.email_message().send()
-                status = STATUS.sent
-                message = ''
-                exception_type = ''
-            except Exception as e:
-                status = STATUS.failed
-                message = str(e)
-                exception_type = type(e).__name__
+        try:
+            self.email_message().send()
+            status = STATUS.sent
+            message = ''
+            exception_type = ''
+        except Exception as e:
+            status = STATUS.failed
+            message = str(e)
+            exception_type = type(e).__name__
 
-                # If run in a bulk sending mode, reraise and let the outer
-                # layer handle the exception
-                if not commit:
-                    raise
-        else:
-            status = STATUS.skipped
+            # If run in a bulk sending mode, reraise and let the outer
+            # layer handle the exception
+            if not commit:
+                raise
 
         if disconnect_after_delivery:
             connections.close()
@@ -208,6 +205,17 @@ class Email(models.Model):
                                  exception_type=exception_type)
 
         return status
+
+    def skipped(self, log_level=None):
+        """
+        Skipping of sending email and log the result.
+        """
+        status = STATUS.skipped
+        message = 'Skipped due to enabled=False'
+        self.logs.create(status=status, message=message)
+
+        return status
+
 
     def clean(self):
         if self.scheduled_time and self.expires_at and self.scheduled_time > self.expires_at:
