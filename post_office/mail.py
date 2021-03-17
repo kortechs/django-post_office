@@ -97,7 +97,7 @@ def create(sender, recipients=None, cc=None, bcc=None, subject='', message='',
 
 def send(recipients=None, sender=None, template=None, context=None, subject='',
          message='', html_message='', scheduled_time=None, expires_at=None, headers=None,
-         priority=None, enabled=None, attachments=None, render_on_delivery=False,
+         priority=None, attachments=None, render_on_delivery=False,
          log_level=None, commit=True, cc=None, bcc=None, language='',
          backend=''):
     try:
@@ -156,10 +156,6 @@ def send(recipients=None, sender=None, template=None, context=None, subject='',
     if attachments:
         attachments = create_attachments(attachments)
         email.attachments.add(*attachments)
-
-    if enabled is False:
-        email.skipped(log_level=2)
-        return email
 
     if priority == PRIORITY.now:
         email.dispatch(log_level=log_level)

@@ -254,7 +254,7 @@ class EmailTemplateInline(admin.StackedInline):
     formset = EmailTemplateAdminFormSet
     model = EmailTemplate
     extra = 0
-    fields = ('language', 'subject', 'content', 'html_content',)
+    fields = ('language', 'subject', 'content', 'html_content', 'enabled')
     formfield_overrides = {
         models.CharField: {'widget': SubjectField}
     }
@@ -269,7 +269,7 @@ class EmailTemplateAdmin(admin.ModelAdmin):
     search_fields = ('name', 'description', 'subject')
     fieldsets = [
         (None, {
-            'fields': ('name', 'description'),
+            'fields': ('name', 'description', 'enabled'),
         }),
         (_("Default Content"), {
             'fields': ('subject', 'content', 'html_content'),
@@ -304,6 +304,7 @@ class EmailTemplateAdmin(admin.ModelAdmin):
 class AttachmentAdmin(admin.ModelAdmin):
     list_display = ['name', 'file']
     filter_horizontal = ['emails']
+
 
 admin.site.register(Email, EmailAdmin)
 admin.site.register(Log, LogAdmin)

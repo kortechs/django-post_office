@@ -205,17 +205,6 @@ class Email(models.Model):
 
         return status
 
-    def skipped(self, log_level=None):
-        """
-        Skipping of sending email and log the result.
-        """
-        status = STATUS.skipped
-        message = 'Skipped due to enabled=False'
-        self.logs.create(status=status, message=message)
-
-        return status
-
-
     def clean(self):
         if self.scheduled_time and self.expires_at and self.scheduled_time > self.expires_at:
             raise ValidationError(_("The scheduled time may not be later than the expires time."))
@@ -274,7 +263,7 @@ class EmailTemplate(models.Model):
         default='', blank=True)
     default_template = models.ForeignKey('self', related_name='translated_templates',
         null=True, default=None, verbose_name=_('Default template'), on_delete=models.CASCADE)
-    enabled = models.BooleanField(default=False)
+    enabled = models.BooleanField(default=True)
 
     objects = EmailTemplateManager()
 
