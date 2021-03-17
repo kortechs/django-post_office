@@ -289,7 +289,7 @@ class EmailTemplate(models.Model):
         cache.delete(self.name)
         return template
 
-    def skipped(self, log_level=None):
+    def skipped(self):
         """
         Skipping of sending email and log the result.
         """
