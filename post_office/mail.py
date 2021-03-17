@@ -100,68 +100,71 @@ def send(recipients=None, sender=None, template=None, context=None, subject='',
          priority=None, attachments=None, render_on_delivery=False,
          log_level=None, commit=True, cc=None, bcc=None, language='',
          backend=''):
-    try:
-        recipients = parse_emails(recipients)
-    except ValidationError as e:
-        raise ValidationError('recipients: %s' % e.message)
+    if EmailTemplate.enabled is True:
+        try:
+            recipients = parse_emails(recipients)
+        except ValidationError as e:
+            raise ValidationError('recipients: %s' % e.message)
 
-    try:
-        cc = parse_emails(cc)
-    except ValidationError as e:
-        raise ValidationError('c: %s' % e.message)
+        try:
+            cc = parse_emails(cc)
+        except ValidationError as e:
+            raise ValidationError('c: %s' % e.message)
 
-    try:
-        bcc = parse_emails(bcc)
-    except ValidationError as e:
-        raise ValidationError('bcc: %s' % e.message)
+        try:
+            bcc = parse_emails(bcc)
+        except ValidationError as e:
+            raise ValidationError('bcc: %s' % e.message)
 
-    if sender is None:
-        sender = settings.DEFAULT_FROM_EMAIL
+        if sender is None:
+            sender = settings.DEFAULT_FROM_EMAIL
 
-    priority = parse_priority(priority)
+        priority = parse_priority(priority)
 
-    if log_level is None:
-        log_level = get_log_level()
+        if log_level is None:
+            log_level = get_log_level()
 
-    if not commit:
-        if priority == PRIORITY.now:
-            raise ValueError("send_many() can't be used with priority = 'now'")
+        if not commit:
+            if priority == PRIORITY.now:
+                raise ValueError("send_many() can't be used with priority = 'now'")
+            if attachments:
+                raise ValueError("Can't add attachments with send_many()")
+
+        if template:
+            if subject:
+                raise ValueError('You can\'t specify both "template" and "subject" arguments')
+            if message:
+                raise ValueError('You can\'t specify both "template" and "message" arguments')
+            if html_message:
+                raise ValueError('You can\'t specify both "template" and "html_message" arguments')
+
+            # template can be an EmailTemplate instance or name
+            if isinstance(template, EmailTemplate):
+                template = template
+                # If language is specified, ensure template uses the right language
+                if language and template.language != language:
+                    template = template.translated_templates.get(language=language)
+            else:
+                template = get_email_template(template, language)
+
+        if backend and backend not in get_available_backends().keys():
+            raise ValueError('%s is not a valid backend alias' % backend)
+
+        email = create(sender, recipients, cc, bcc, subject, message, html_message,
+                       context, scheduled_time, expires_at, headers, template, priority,
+                       render_on_delivery, commit=commit, backend=backend)
+
         if attachments:
-            raise ValueError("Can't add attachments with send_many()")
+            attachments = create_attachments(attachments)
+            email.attachments.add(*attachments)
 
-    if template:
-        if subject:
-            raise ValueError('You can\'t specify both "template" and "subject" arguments')
-        if message:
-            raise ValueError('You can\'t specify both "template" and "message" arguments')
-        if html_message:
-            raise ValueError('You can\'t specify both "template" and "html_message" arguments')
+        if priority == PRIORITY.now:
+            email.dispatch(log_level=log_level)
+        email_queued.send(sender=Email, emails=[email])
 
-        # template can be an EmailTemplate instance or name
-        if isinstance(template, EmailTemplate):
-            template = template
-            # If language is specified, ensure template uses the right language
-            if language and template.language != language:
-                template = template.translated_templates.get(language=language)
-        else:
-            template = get_email_template(template, language)
-
-    if backend and backend not in get_available_backends().keys():
-        raise ValueError('%s is not a valid backend alias' % backend)
-
-    email = create(sender, recipients, cc, bcc, subject, message, html_message,
-                   context, scheduled_time, expires_at, headers, template, priority,
-                   render_on_delivery, commit=commit, backend=backend)
-
-    if attachments:
-        attachments = create_attachments(attachments)
-        email.attachments.add(*attachments)
-
-    if priority == PRIORITY.now:
-        email.dispatch(log_level=log_level)
-    email_queued.send(sender=Email, emails=[email])
-
-    return email
+        return email
+    else:
+        EmailTemplate.skipped(log_level=2)
 
 
 def send_many(kwargs_list):

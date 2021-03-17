@@ -289,6 +289,15 @@ class EmailTemplate(models.Model):
         cache.delete(self.name)
         return template
 
+    def skipped(self, log_level=None):
+        """
+        Skipping of sending email and log the result.
+        """
+        status = STATUS.skipped
+        message = 'Skipped due to enabled=False'
+        self.logs.create(status=status, message=message)
+
+        return status
 
 def get_upload_path(instance, filename):
     """Overriding to store the original filename"""
