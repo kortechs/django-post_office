@@ -169,20 +169,23 @@ class Email(models.Model):
         """
         Sends email and log the result.
         """
-        try:
-            self.email_message().send()
-            status = STATUS.sent
-            message = ''
-            exception_type = ''
-        except Exception as e:
-            status = STATUS.failed
-            message = str(e)
-            exception_type = type(e).__name__
+        if self.enabled is True:
+            try:
+                self.email_message().send()
+                status = STATUS.sent
+                message = ''
+                exception_type = ''
+            except Exception as e:
+                status = STATUS.failed
+                message = str(e)
+                exception_type = type(e).__name__
 
-            # If run in a bulk sending mode, reraise and let the outer
-            # layer handle the exception
-            if not commit:
-                raise
+                # If run in a bulk sending mode, reraise and let the outer
+                # layer handle the exception
+                if not commit:
+                    raise
+        else:
+            status = STATUS.skipped
 
         if disconnect_after_delivery:
             connections.close()
