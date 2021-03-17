@@ -240,7 +240,7 @@ class EmailTemplateAdminForm(forms.ModelForm):
     class Meta:
         model = EmailTemplate
         fields = ['name', 'description', 'subject', 'content', 'html_content', 'language',
-                  'default_template']
+                  'default_template', 'enabled']
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
