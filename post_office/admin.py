@@ -82,7 +82,7 @@ requeue.short_description = 'Requeue selected emails'
 
 
 class EmailAdmin(admin.ModelAdmin):
-    list_display = ['truncated_message_id', 'to_display', 'shortened_subject', 'status', 'last_updated', 'scheduled_time', 'use_template', 'enabled']
+    list_display = ['truncated_message_id', 'to_display', 'shortened_subject', 'status', 'last_updated', 'scheduled_time', 'use_template']
     search_fields = ['to', 'subject']
     readonly_fields = ['message_id', 'render_subject', 'render_plaintext_body',  'render_html_body']
     date_hierarchy = 'last_updated'
@@ -265,7 +265,7 @@ class EmailTemplateInline(admin.StackedInline):
 
 class EmailTemplateAdmin(admin.ModelAdmin):
     form = EmailTemplateAdminForm
-    list_display = ('name', 'description_shortened', 'subject', 'languages_compact', 'created')
+    list_display = ('name', 'description_shortened', 'subject', 'languages_compact', 'created', 'enabled')
     search_fields = ('name', 'description', 'subject')
     fieldsets = [
         (None, {

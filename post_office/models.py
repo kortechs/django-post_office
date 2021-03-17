@@ -55,7 +55,6 @@ class Email(models.Model):
                                                 blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     last_updated = models.DateTimeField(db_index=True, auto_now=True)
-    enabled = models.BooleanField(default=True),
 
     scheduled_time = models.DateTimeField(_("Scheduled Time"),
                                           blank=True, null=True, db_index=True,
@@ -275,6 +274,7 @@ class EmailTemplate(models.Model):
         default='', blank=True)
     default_template = models.ForeignKey('self', related_name='translated_templates',
         null=True, default=None, verbose_name=_('Default template'), on_delete=models.CASCADE)
+    enabled = models.BooleanField(default=False)
 
     objects = EmailTemplateManager()
 
