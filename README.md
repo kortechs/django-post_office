@@ -24,7 +24,7 @@ Django. Some awesome features are:
 
 -   [bleach](https://bleach.readthedocs.io/)
 
-With this optional dependency, HTML emails are nicely rendered
+With this optional dependededency, HTML emails are nicely rendered
 inside the Django admin backend. Without this library, all HTML tags
 will otherwise be stripped for security reasons.
 
